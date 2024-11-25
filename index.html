@@ -4,517 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico">
-    <title>医院，还有那位病人</title>
+    <title>AIBoB 视觉小说</title>
     <style>
-        body {
-            font-family: "SimSun", serif;
-            background-color: #2a2a2a;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-        }
-
-        #intro-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            transition: opacity 1s ease;
-        }
-
-        #company-logo {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-
-        #headphone-tip {
-            font-size: 1.2rem;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-
-        #start-button {
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            background: none;
-            border: 1px solid white;
-            color: white;
-            cursor: pointer;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        #start-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .background-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0;
-            transition: opacity 1s ease;
-            z-index: 1;
-        }
-
-        .background-overlay.show {
-            opacity: 1;
-        }
-
-        .game-container {
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            padding: 2rem;
-            z-index: 2;
-            position: relative;
-        }
-
-        .character-name {
-            font-size: 1.44rem;
-            margin-bottom: 1.5rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .dialog-text {
-            font-size: 1.12rem;
-            line-height: 1.8;
-            margin-bottom: 2rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            padding: 0 20px;
-            min-height: 3em;
-        }
-
-        .options-container {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
-            flex-wrap: wrap;
-        }
-
-        .option-button {
-            background: none;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 1rem 2rem;
-            font-size: 0.96rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            min-width: 150px;
-        }
-
-        .option-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.8);
-            transform: translateY(-2px);
-        }
-
-        .show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #bgm-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-        }
-
-        #bgm-control:hover {
-            opacity: 1;
-        }
-
-        #bgm-button {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            min-width: 80px;
-            text-align: center;
-        }
-
-        #bgm-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.8);
-        }
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        /* 如果需要允许特定元素的文本选择，可以单独设置 */
-        .dialog-text {
-            -webkit-user-select: text;
-            user-select: text;
+
+        body {
+            font-family: "SimSun", serif;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            cursor: default;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .description {
+            max-width: 800px;
+            line-height: 1.8;
+            text-align: justify;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease 0.3s forwards;
+            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .stories-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+
+        .story-button {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: "SimSun", serif;
+        }
+
+        .story-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .story-status {
+            font-size: 0.9rem;
+            color: #66ff66;
+            text-shadow: 0 0 5px rgba(102, 255, 102, 0.5);
+        }
+
+        .story-status.wip {
+            color: #ffaa00;
+            text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .description {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="intro-screen">
-        <div id="company-logo">AIBoB Games Hub荣誉出品</div>
-        <div id="headphone-tip">佩戴耳机使用更佳</div>
-        <button id="start-button">开始游戏</button>
+    <div class="header">
+        <h1 class="title">AIBoB 视觉小说</h1>
     </div>
 
-    <div class="background-overlay" id="background-overlay"></div>
-
-    <div id="bgm-control">
-        <audio id="bgm" loop>
-            <source src="audio/background-music.mp3" type="audio/mpeg">
-        </audio>
-        <button onclick="toggleBGM()" id="bgm-button">音乐 关闭</button>
+    <div class="description">
+        AIBoB是一个专注于创作互动视觉小说的AI创作平台。每个故事都包含多个分支选择，
+        让您的每一个决定都能影响故事的发展方向。
     </div>
-    
-    <div class="game-container">
-        <div class="character-name" id="character-name"></div>
-        <div class="dialog-text" id="dialog-text"></div>
-        <div class="options-container" id="options-container"></div>
+
+    <div class="stories-container">
+        <button class="story-button" onclick="window.location.href='hospital/'">
+            医院，还有那位病人
+            <span class="story-status">已完成</span>
+        </button>
+
+        <button class="story-button" onclick="window.location.href='school/'">
+            放学后的教室
+            <span class="story-status wip">开发中</span>
+        </button>
+
+        <button class="story-button" onclick="window.location.href='train/'">
+            末班列车
+            <span class="story-status wip">开发中</span>
+        </button>
+
+        <button class="story-button" onclick="window.location.href='cafe/'">
+            雨天的咖啡馆
+            <span class="story-status wip">开发中</span>
+        </button>
     </div>
-    <script>
-        let currentStory = {};
-        let currentBranch = 'main';
-        let currentLine = 0;
-        let bgm = document.getElementById('bgm');
-        let isAnimating = false;
-        let isTyping = false;
-        let typewriterSpeed = 50;
-
-        async function loadStory() {
-            try {
-                const response = await fetch('readme.md');
-                const text = await response.text();
-                console.log("加载的原始文本:", text);
-                currentStory = parseStory(text);
-                console.log("解析后的故事数据:", currentStory);
-            } catch (error) {
-                console.error('Error loading story:', error);
-            }
-        }
-
-        function showIntro() {
-            const companyLogo = document.getElementById('company-logo');
-            const headphoneTip = document.getElementById('headphone-tip');
-            const startButton = document.getElementById('start-button');
-            const introScreen = document.getElementById('intro-screen');
-
-            setTimeout(() => {
-                companyLogo.style.opacity = '1';
-            }, 500);
-
-            setTimeout(() => {
-                headphoneTip.style.opacity = '1';
-            }, 1500);
-
-            setTimeout(() => {
-                startButton.style.opacity = '1';
-            }, 2500);
-
-            startButton.onclick = () => {
-                introScreen.style.opacity = '0';
-                setTimeout(() => {
-                    introScreen.style.display = 'none';
-                    tryPlayAudio();
-                    const savedProgress = localStorage.getItem('gameProgress');
-                    if (savedProgress) {
-                        const progress = JSON.parse(savedProgress);
-                        showContinuePrompt(progress.branch, progress.line);
-                    } else {
-                        currentBranch = 'main';
-                        currentLine = 0;
-                        showCurrentLine();
-                    }
-                }, 1000);
-            };
-        }
-
-        async function tryPlayAudio() {
-            try {
-                bgm.volume = 0.3;
-                await bgm.play();
-                updateBGMButton(true);
-            } catch (err) {
-                console.log('Auto-play prevented:', err);
-                updateBGMButton(false);
-            }
-        }
-
-        function updateBGMButton(isPlaying) {
-            const button = document.getElementById('bgm-button');
-            button.textContent = `音乐 ${isPlaying ? '开启' : '关闭'}`;
-        }
-
-        function showContinuePrompt(savedBranch, savedLine) {
-            const continuePrompt = {
-                character: "旁白",
-                dialog: "我们已经记录您的游戏进程，是否要继续",
-                options: [
-                    { text: "从本章继续", branch: savedBranch, line: savedLine },
-                    { text: "重新开始", branch: "main", line: 0 }
-                ],
-                image: "",
-                color: "#FFFFFF"
-            };
-            displayLine(continuePrompt);
-        }
-
-        function parseStory(text) {
-            const branches = {};
-            let currentBranch = 'main';
-            
-            const lines = text.split('\n').filter(line => line.trim());
-            
-            for (let line of lines) {
-                if (line.startsWith('# ')) {
-                    currentBranch = line.substring(2).trim();
-                    branches[currentBranch] = [];
-                    continue;
-                }
-
-                const match = line.match(/\[(.*?)\]\[(.*?)\]\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?/);
-                if (match) {
-                    const options = match[3] ? match[3].split('|').map(opt => {
-                        if (opt.includes('*')) {
-                            const [text, link] = opt.split('*');
-                            return { text, link };
-                        } else if (opt.includes('#')) {
-                            const [text, branch] = opt.split('#');
-                            return { text, branch };
-                        }
-                        return { text: opt };
-                    }) : [];
-
-                    branches[currentBranch].push({
-                        character: match[1],
-                        dialog: match[2],
-                        options: options,
-                        image: match[4].trim(),
-                        color: match[5] ? match[5].trim() : '#FFFFFF'
-                    });
-                }
-            }
-            
-            return branches;
-        }
-
-        function showCurrentLine() {
-            if (!currentStory[currentBranch] || 
-                currentLine >= currentStory[currentBranch].length) return;
-
-            const line = currentStory[currentBranch][currentLine];
-            displayLine(line);
-            saveProgress();
-        }
-
-        function saveProgress() {
-            localStorage.setItem('gameProgress', JSON.stringify({
-                branch: currentBranch,
-                line: currentLine
-            }));
-        }
-
-        function typeWriter(element, text, callback) {
-            let index = 0;
-            isTyping = true;
-            element.textContent = '';
-
-            function type() {
-                if (index < text.length) {
-                    element.textContent += text.charAt(index);
-                    index++;
-                    setTimeout(type, typewriterSpeed);
-                } else {
-                    isTyping = false;
-                    if (callback) callback();
-                }
-            }
-
-            type();
-        }
-
-        function displayLine(line) {
-            isAnimating = true;
-
-            const characterElement = document.getElementById('character-name');
-            const dialogElement = document.getElementById('dialog-text');
-            const optionsContainer = document.getElementById('options-container');
-            const backgroundOverlay = document.getElementById('background-overlay');
-
-            characterElement.classList.remove('show');
-            dialogElement.classList.remove('show');
-            optionsContainer.classList.remove('show');
-            backgroundOverlay.classList.remove('show');
-            
-            characterElement.textContent = line.character;
-            dialogElement.textContent = '';
-            
-            if (line.color) {
-                dialogElement.style.color = line.color;
-                characterElement.style.color = line.color;
-            } else {
-                dialogElement.style.color = '#FFFFFF';
-                characterElement.style.color = '#FFFFFF';
-            }
-            
-            if (line.image) {
-                const img = new Image();
-                img.onload = () => {
-                    backgroundOverlay.style.backgroundImage = `url('${line.image}')`;
-                    setTimeout(() => {
-                        backgroundOverlay.classList.add('show');
-                    }, 50);
-                };
-                img.onerror = () => {
-                    console.error("图片加载失败:", line.image);
-                };
-                img.src = line.image;
-            } else {
-                backgroundOverlay.style.backgroundImage = 'none';
-            }
-
-            optionsContainer.innerHTML = '';
-
-            requestAnimationFrame(() => {
-                characterElement.classList.add('show');
-                setTimeout(() => {
-                    dialogElement.classList.add('show');
-                    typeWriter(dialogElement, line.dialog, () => {
-                        if (line.options && line.options.length > 0) {
-                            line.options.forEach(option => {
-                                const button = document.createElement('button');
-                                button.className = 'option-button';
-                                button.textContent = option.text;
-                                if (line.color) {
-                                    button.style.color = line.color;
-                                    button.style.borderColor = line.color + '4D';
-                                }
-                                button.onclick = (e) => {
-                                    e.stopPropagation();
-                                    if (option.link) {
-                                        window.location.href = option.link;
-                                    } else if (option.branch) {
-                                        currentBranch = option.branch;
-                                        currentLine = option.line || 0;
-                                        showCurrentLine();
-                                    } else {
-                                        currentLine++;
-                                        showCurrentLine();
-                                    }
-                                };
-                                optionsContainer.appendChild(button);
-                            });
-                            setTimeout(() => {
-                                optionsContainer.classList.add('show');
-                                isAnimating = false;
-                            }, 300);
-                        } else {
-                            isAnimating = false;
-                        }
-                    });
-                }, 300);
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('#bgm-control')) return;
-            if (e.target.closest('.option-button')) return;
-            if (e.target.closest('#start-button')) return;
-            
-            if (isTyping) {
-                const dialogElement = document.getElementById('dialog-text');
-                const currentLineData = currentStory[currentBranch][currentLine];
-                dialogElement.textContent = currentLineData.dialog;
-                isTyping = false;
-                return;
-            }
-            
-            if (!isAnimating && currentStory[currentBranch] && 
-                currentLine < currentStory[currentBranch].length) {
-                const currentOptions = currentStory[currentBranch][currentLine].options;
-                if (!currentOptions || currentOptions.length === 0) {
-                    currentLine++;
-                    showCurrentLine();
-                }
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'Enter') {
-                if (isTyping) {
-                    const dialogElement = document.getElementById('dialog-text');
-                    const currentLineData = currentStory[currentBranch][currentLine];
-                    dialogElement.textContent = currentLineData.dialog;
-                    isTyping = false;
-                    return;
-                }
-
-                if (!isAnimating && currentStory[currentBranch] && 
-                    currentLine < currentStory[currentBranch].length) {
-                    const currentOptions = currentStory[currentBranch][currentLine].options;
-                    if (!currentOptions || currentOptions.length === 0) {
-                        e.preventDefault();
-                        currentLine++;
-                        showCurrentLine();
-                    }
-                }
-            }
-        });
-
-        function toggleBGM() {
-            if (bgm.paused) {
-                bgm.play();
-                updateBGMButton(true);
-            } else {
-                bgm.pause();
-                updateBGMButton(false);
-            }
-        }
-
-        window.onload = () => {
-            showIntro();
-            loadStory();
-        };
-    </script>
 </body>
 </html>
