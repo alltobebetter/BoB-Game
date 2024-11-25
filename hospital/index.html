@@ -50,32 +50,40 @@
         }
 
         #company-logo {
-            font-size: 2rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
             opacity: 0;
-            transition: opacity 1s ease;
+            transition: all 1s ease;
+            transform: scale(0.8);
+        }
+
+        #company-logo.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #studio-text {
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: all 1s ease;
+            transform: translateY(20px);
+        }
+
+        #studio-text.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         #headphone-tip {
             font-size: 1.2rem;
             opacity: 0;
-            transition: opacity 1s ease;
+            transition: all 1s ease;
+            transform: translateY(20px);
         }
 
-        #start-button {
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            background: none;
-            border: 1px solid white;
-            color: white;
-            cursor: pointer;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        #start-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        #headphone-tip.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .background-overlay {
@@ -200,9 +208,9 @@
 </head>
 <body>
     <div id="intro-screen">
-        <div id="company-logo">AIBoB制作</div>
+        <div id="company-logo">AIBoB</div>
+        <div id="studio-text">Game Studio</div>
         <div id="headphone-tip">佩戴耳机使用更佳</div>
-        <button id="start-button">开始游戏</button>
     </div>
 
     <div class="background-overlay" id="background-overlay"></div>
@@ -243,23 +251,33 @@
 
         function showIntro() {
             const companyLogo = document.getElementById('company-logo');
+            const studioText = document.getElementById('studio-text');
             const headphoneTip = document.getElementById('headphone-tip');
-            const startButton = document.getElementById('start-button');
             const introScreen = document.getElementById('intro-screen');
 
+            // 显示公司名称
             setTimeout(() => {
-                companyLogo.style.opacity = '1';
+                companyLogo.classList.add('show');
             }, 500);
 
+            // 显示 Studio 文字
             setTimeout(() => {
-                headphoneTip.style.opacity = '1';
+                studioText.classList.add('show');
             }, 1500);
 
+            // 淡出公司名称和 Studio
             setTimeout(() => {
-                startButton.style.opacity = '1';
-            }, 2500);
+                companyLogo.style.opacity = '0';
+                studioText.style.opacity = '0';
+            }, 3000);
 
-            startButton.onclick = () => {
+            // 显示耳机提示
+            setTimeout(() => {
+                headphoneTip.classList.add('show');
+            }, 3500);
+
+            // 开始游戏
+            setTimeout(() => {
                 introScreen.style.opacity = '0';
                 setTimeout(() => {
                     introScreen.style.display = 'none';
@@ -274,16 +292,39 @@
                         showCurrentLine();
                     }
                 }, 1000);
-            };
+            }, 5000);
         }
 
         async function tryPlayAudio() {
             try {
                 bgm.volume = 0.3;
-                await bgm.play();
-                updateBGMButton(true);
+                // 添加用户交互检测
+                const playPromise = bgm.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        updateBGMButton(true);
+                    }).catch(() => {
+                        // 如果自动播放失败，添加一次性点击事件来播放
+                        const playOnClick = () => {
+                            bgm.play().then(() => {
+                                updateBGMButton(true);
+                                document.removeEventListener('click', playOnClick);
+                            });
+                        };
+                        document.addEventListener('click', playOnClick);
+                        updateBGMButton(false);
+                    });
+                }
             } catch (err) {
                 console.log('Auto-play prevented:', err);
+                // 同样添加点击事件作为备选方案
+                const playOnClick = () => {
+                    bgm.play().then(() => {
+                        updateBGMButton(true);
+                        document.removeEventListener('click', playOnClick);
+                    });
+                };
+                document.addEventListener('click', playOnClick);
                 updateBGMButton(false);
             }
         }
@@ -481,7 +522,6 @@
         document.addEventListener('click', (e) => {
             if (e.target.closest('#bgm-control')) return;
             if (e.target.closest('.option-button')) return;
-            if (e.target.closest('#start-button')) return;
             
             if (isTyping) {
                 if (currentTypewriterInterrupt) {
