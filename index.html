@@ -176,6 +176,18 @@
             background-color: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.8);
         }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        /* 如果需要允许特定元素的文本选择，可以单独设置 */
+        .dialog-text {
+            -webkit-user-select: text;
+            user-select: text;
+        }
     </style>
 </head>
 <body>
