@@ -20,6 +20,51 @@
             position: relative;
         }
 
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: opacity 1s ease;
+        }
+
+        #company-logo {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #headphone-tip {
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #start-button {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: none;
+            border: 1px solid white;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        #start-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
         .background-overlay {
             position: fixed;
             top: 0;
@@ -115,7 +160,7 @@
             opacity: 1;
         }
 
-        #bgm-control button {
+        #bgm-button {
             background: none;
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -123,22 +168,30 @@
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
+            min-width: 80px;
+            text-align: center;
         }
 
-        #bgm-control button:hover {
+        #bgm-button:hover {
             background-color: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
 <body>
+    <div id="intro-screen">
+        <div id="company-logo">AIBoB制作</div>
+        <div id="headphone-tip">佩戴耳机使用更佳</div>
+        <button id="start-button">开始游戏</button>
+    </div>
+
     <div class="background-overlay" id="background-overlay"></div>
 
     <div id="bgm-control">
         <audio id="bgm" loop>
             <source src="audio/background-music.mp3" type="audio/mpeg">
         </audio>
-        <button onclick="toggleBGM()">音乐 开/关</button>
+        <button onclick="toggleBGM()" id="bgm-button">音乐 关闭</button>
     </div>
     
     <div class="game-container">
@@ -162,19 +215,61 @@
                 console.log("加载的原始文本:", text);
                 currentStory = parseStory(text);
                 console.log("解析后的故事数据:", currentStory);
-                
-                const savedProgress = localStorage.getItem('gameProgress');
-                if (savedProgress) {
-                    const progress = JSON.parse(savedProgress);
-                    showContinuePrompt(progress.branch, progress.line);
-                } else {
-                    currentBranch = 'main';
-                    currentLine = 0;
-                    showCurrentLine();
-                }
             } catch (error) {
                 console.error('Error loading story:', error);
             }
+        }
+
+        function showIntro() {
+            const companyLogo = document.getElementById('company-logo');
+            const headphoneTip = document.getElementById('headphone-tip');
+            const startButton = document.getElementById('start-button');
+            const introScreen = document.getElementById('intro-screen');
+
+            setTimeout(() => {
+                companyLogo.style.opacity = '1';
+            }, 500);
+
+            setTimeout(() => {
+                headphoneTip.style.opacity = '1';
+            }, 1500);
+
+            setTimeout(() => {
+                startButton.style.opacity = '1';
+            }, 2500);
+
+            startButton.onclick = () => {
+                introScreen.style.opacity = '0';
+                setTimeout(() => {
+                    introScreen.style.display = 'none';
+                    tryPlayAudio();
+                    const savedProgress = localStorage.getItem('gameProgress');
+                    if (savedProgress) {
+                        const progress = JSON.parse(savedProgress);
+                        showContinuePrompt(progress.branch, progress.line);
+                    } else {
+                        currentBranch = 'main';
+                        currentLine = 0;
+                        showCurrentLine();
+                    }
+                }, 1000);
+            };
+        }
+
+        async function tryPlayAudio() {
+            try {
+                bgm.volume = 0.3;
+                await bgm.play();
+                updateBGMButton(true);
+            } catch (err) {
+                console.log('Auto-play prevented:', err);
+                updateBGMButton(false);
+            }
+        }
+
+        function updateBGMButton(isPlaying) {
+            const button = document.getElementById('bgm-button');
+            button.textContent = `音乐 ${isPlaying ? '开启' : '关闭'}`;
         }
 
         function showContinuePrompt(savedBranch, savedLine) {
@@ -188,7 +283,6 @@
                 image: "",
                 color: "#FFFFFF"
             };
-
             displayLine(continuePrompt);
         }
 
@@ -205,7 +299,7 @@
                     continue;
                 }
 
-                const match = line.match(/\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?\[(.*?)\](?:\[(.*?)\])?/);
+                const match = line.match(/\[(.*?)\]\[(.*?)\]\[(.*?)\]\[(.*?)\](?:\[(.*?)\])?/);
                 if (match) {
                     const options = match[3] ? match[3].split('|').map(opt => {
                         if (opt.includes('*')) {
@@ -282,7 +376,6 @@
             characterElement.textContent = line.character;
             dialogElement.textContent = '';
             
-            // 设置文字颜色
             if (line.color) {
                 dialogElement.style.color = line.color;
                 characterElement.style.color = line.color;
@@ -353,6 +446,7 @@
         document.addEventListener('click', (e) => {
             if (e.target.closest('#bgm-control')) return;
             if (e.target.closest('.option-button')) return;
+            if (e.target.closest('#start-button')) return;
             
             if (isTyping) {
                 const dialogElement = document.getElementById('dialog-text');
@@ -397,12 +491,17 @@
         function toggleBGM() {
             if (bgm.paused) {
                 bgm.play();
+                updateBGMButton(true);
             } else {
                 bgm.pause();
+                updateBGMButton(false);
             }
         }
 
-        window.onload = loadStory;
+        window.onload = () => {
+            showIntro();
+            loadStory();
+        };
     </script>
 </body>
 </html>
