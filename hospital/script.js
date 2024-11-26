@@ -6,6 +6,82 @@ let isAnimating = false;
 let isTyping = false;
 let typewriterSpeed = 50;
 let currentTypewriterInterrupt = null;
+let totalResources = 0;
+let loadedResources = 0;
+
+async function preloadResources() {
+    const resources = [
+        { type: 'audio', url: 'audio/background-music.mp3' },
+        { type: 'text', url: 'readme.md' },
+        { type: 'image', url: 'favicon.ico' }
+        // 添加其他需要预加载的资源
+    ];
+
+    totalResources = resources.length;
+
+    const loadPromises = resources.map(resource => {
+        return new Promise((resolve, reject) => {
+            switch(resource.type) {
+                case 'audio':
+                    const audio = new Audio();
+                    audio.oncanplaythrough = () => {
+                        loadedResources++;
+                        updateLoadingProgress();
+                        resolve();
+                    };
+                    audio.onerror = reject;
+                    audio.src = resource.url;
+                    break;
+                    
+                case 'image':
+                    const img = new Image();
+                    img.onload = () => {
+                        loadedResources++;
+                        updateLoadingProgress();
+                        resolve();
+                    };
+                    img.onerror = reject;
+                    img.src = resource.url;
+                    break;
+                    
+                case 'text':
+                    fetch(resource.url)
+                        .then(response => response.text())
+                        .then(() => {
+                            loadedResources++;
+                            updateLoadingProgress();
+                            resolve();
+                        })
+                        .catch(reject);
+                    break;
+            }
+        });
+    });
+
+    try {
+        await Promise.all(loadPromises);
+        finishLoading();
+    } catch (error) {
+        console.error('Resource loading error:', error);
+        // 即使加载失败也继续游戏
+        finishLoading();
+    }
+}
+
+function updateLoadingProgress() {
+    const progress = (loadedResources / totalResources) * 100;
+    const loadingBar = document.getElementById('loading-bar');
+    loadingBar.style.width = `${progress}%`;
+}
+
+function finishLoading() {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = '0';
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        showIntro();
+    }, 500);
+}
 
 async function loadStory() {
     try {
@@ -341,6 +417,6 @@ function toggleBGM() {
 }
 
 window.onload = () => {
-    showIntro();
+    preloadResources();
     loadStory();
 };
