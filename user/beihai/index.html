@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+    <title>恐怖游戏角色都爱作死</title>
+</head>
+<body>
+    <div id="intro-screen">
+        <div id="company-logo">AIBoB</div>
+        <div id="studio-text">Game Studio</div>
+        <div class="headphone-container">
+            <div class="headphone-icon">🎧</div>
+            <div id="headphone-tip">佩戴耳机使用更佳</div>
+        </div>
+    </div>
+
+    <div class="background-overlay" id="background-overlay"></div>
+
+    <div id="bgm-control">
+        <audio id="bgm" loop>
+            <source src="" type="audio/mpeg">
+        </audio>
+        <button onclick="toggleBGM()" id="bgm-button">音乐 关闭</button>
+    </div>
+    
+    <div class="game-container">
+        <div class="character-name" id="character-name"></div>
+        <div class="dialog-text" id="dialog-text"></div>
+        <div class="options-container" id="options-container"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
