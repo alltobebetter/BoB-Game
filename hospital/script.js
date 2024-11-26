@@ -1,9 +1,3 @@
-const RESOURCES = {
-    css: 'styles.css',
-    audio: 'audio/background-music.mp3',
-    story: 'readme.md'
-};
-
 let currentStory = {};
 let currentBranch = 'main';
 let currentLine = 0;
@@ -13,39 +7,15 @@ let isTyping = false;
 let typewriterSpeed = 50;
 let currentTypewriterInterrupt = null;
 
-async function preloadResources() {
-    const loadingScreen = document.getElementById('loading-screen');
-    
+async function loadStory() {
     try {
-        // 预加载音频
-        const audioPromise = new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.addEventListener('canplaythrough', () => resolve(), { once: true });
-            audio.addEventListener('error', reject);
-            audio.src = RESOURCES.audio;
-        });
-
-        // 预加载故事内容
-        const storyPromise = fetch(RESOURCES.story).then(res => res.text());
-
-        // 等待所有资源加载完成
-        await Promise.all([audioPromise, storyPromise]);
-
-        // 隐藏加载屏幕
-        loadingScreen.style.opacity = '0';
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            showIntro();
-        }, 500);
-
+        const response = await fetch('readme.md');
+        const text = await response.text();
+        console.log("加载的原始文本:", text);
+        currentStory = parseStory(text);
+        console.log("解析后的故事数据:", currentStory);
     } catch (error) {
-        console.error('资源加载失败:', error);
-        loadingScreen.innerHTML = `
-            <div style="text-align: center;">
-                <p>资源加载失败，请刷新重试</p>
-                <button onclick="location.reload()" style="padding: 10px 20px;">重试</button>
-            </div>
-        `;
+        console.error('Error loading story:', error);
     }
 }
 
@@ -72,16 +42,20 @@ function showIntro() {
 
     // 开始游戏
     setTimeout(() => {
-        tryPlayAudio();
-        const savedProgress = localStorage.getItem('gameProgress');
-        if (savedProgress) {
-            const progress = JSON.parse(savedProgress);
-            showContinuePrompt(progress.branch, progress.line);
-        } else {
-            currentBranch = 'main';
-            currentLine = 0;
-            showCurrentLine();
-        }
+        introScreen.style.opacity = '0';
+        setTimeout(() => {
+            introScreen.style.display = 'none';
+            tryPlayAudio();
+            const savedProgress = localStorage.getItem('gameProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                showContinuePrompt(progress.branch, progress.line);
+            } else {
+                currentBranch = 'main';
+                currentLine = 0;
+                showCurrentLine();
+            }
+        }, 1000);
     }, 4000);
 }
 
@@ -360,17 +334,7 @@ function toggleBGM() {
     }
 }
 
-async function loadStory() {
-    try {
-        const response = await fetch('readme.md');
-        const text = await response.text();
-        currentStory = parseStory(text);
-    } catch (error) {
-        console.error('Error loading story:', error);
-    }
-}
-
 window.onload = () => {
-    preloadResources();
+    showIntro();
     loadStory();
 };
