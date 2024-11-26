@@ -30,16 +30,27 @@
 
         .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin: 5vh 0 5vh;  /* 调整上下间距 */
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 1s ease forwards;
+            padding: 2rem;  /* 添加内边距 */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);  /* 添加底部边框 */
+            width: 100%;
+            max-width: 800px;
         }
 
         .title {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem;  /* 增大字体 */
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;  /* 添加字间距 */
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
         }
 
         .description {
@@ -48,12 +59,13 @@
             text-align: justify;
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;  /* 增加底部间距 */
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 1s ease 0.3s forwards;
             backdrop-filter: blur(5px);
             background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;  /* 添加圆角 */
         }
 
         .stories-container {
@@ -61,7 +73,7 @@
             max-width: 800px;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.2rem;  /* 增加按钮间距 */
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 1s ease 0.6s forwards;
@@ -71,8 +83,8 @@
             background: none;
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            padding: 1.2rem 2rem;  /* 增加按钮内边距 */
+            font-size: 1.1rem;  /* 增大字体 */
             cursor: pointer;
             transition: all 0.3s ease;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -83,6 +95,7 @@
             justify-content: space-between;
             align-items: center;
             font-family: "SimSun", serif;
+            border-radius: 4px;  /* 添加圆角 */
         }
 
         .story-button:hover {
@@ -95,11 +108,15 @@
             font-size: 0.9rem;
             color: #66ff66;
             text-shadow: 0 0 5px rgba(102, 255, 102, 0.5);
+            padding: 0.3rem 0.8rem;  /* 添加状态标签内边距 */
+            border-radius: 3px;  /* 添加圆角 */
+            background: rgba(102, 255, 102, 0.1);  /* 添加背景 */
         }
 
         .story-status.wip {
             color: #ffaa00;
             text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+            background: rgba(255, 170, 0, 0.1);
         }
 
         @keyframes fadeInUp {
@@ -118,8 +135,22 @@
                 padding: 1rem;
             }
 
+            .header {
+                margin: 3vh 0 3vh;
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
             .description {
                 padding: 1rem;
+                margin-bottom: 3rem;
+            }
+
+            .story-button {
+                padding: 1rem 1.5rem;
             }
         }
     </style>
@@ -127,6 +158,7 @@
 <body>
     <div class="header">
         <h1 class="title">AIBoB 视觉小说</h1>
+        <div class="subtitle">交互式故事创作平台</div>
     </div>
 
     <div class="description">
