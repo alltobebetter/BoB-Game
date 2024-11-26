@@ -35,10 +35,16 @@ function showIntro() {
         studioText.classList.add('show');
     }, 1500);
 
-    // 显示耳机提示（不再淡出公司名称和Studio）
+    // 淡出公司名称和 Studio
+    setTimeout(() => {
+        companyLogo.style.opacity = '0';
+        studioText.style.opacity = '0';
+    }, 3000);
+
+    // 显示耳机提示
     setTimeout(() => {
         headphoneContainer.classList.add('show');
-    }, 2500);
+    }, 3500);
 
     // 开始游戏
     setTimeout(() => {
