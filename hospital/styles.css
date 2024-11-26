@@ -25,6 +25,45 @@ body {
     position: relative;
 }
 
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+#loading-progress {
+    width: 200px;
+    height: 2px;
+    background: #333;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: #fff;
+    transition: width 0.3s ease;
+}
+
+#loading-text {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
 #intro-screen {
     position: fixed;
     top: 0;
