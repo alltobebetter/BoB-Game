@@ -35,7 +35,7 @@ function showIntro() {
         studioText.classList.add('show');
     }, 1500);
 
-    // 显示耳机提示
+    // 显示耳机提示（不再淡出公司名称和Studio）
     setTimeout(() => {
         headphoneContainer.classList.add('show');
     }, 2500);
@@ -56,7 +56,7 @@ function showIntro() {
                 showCurrentLine();
             }
         }, 1000);
-    }, 4000);
+    }, 5000);
 }
 
 async function tryPlayAudio() {
