@@ -4,107 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico">
-    <title>医院，还有那位病人</title>
     <style>
         body {
             margin: 0;
-            padding: 0;
             background: #000;
             color: #fff;
             font-family: "SimSun", serif;
-            overflow: hidden;
         }
-
-        #intro-screen {
+        #loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: #000;
-            z-index: 9999;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            transition: opacity 1s ease;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
         }
-
-        #company-logo {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-            opacity: 0;
-            transition: all 1s ease;
-            transform: scale(0.8);
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
         }
-
-        #studio-text {
-            font-size: 1.8rem;
-            opacity: 0;
-            transition: all 1s ease;
-            transform: translateY(20px);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 4rem;
-        }
-
-        .headphone-container {
-            position: absolute;
-            bottom: 15%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            opacity: 0;
-            transition: all 1s ease;
-            transform: translateY(20px);
-        }
-
-        .headphone-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        #headphone-tip {
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-        }
-
-        .show {
-            opacity: 1 !important;
-            transform: translateY(0) scale(1) !important;
-        }
-
-        #loading-progress {
-            position: fixed;
-            bottom: 5%;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
         }
     </style>
-    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <title>医院，还有那位病人</title>
 </head>
 <body>
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div id="intro-screen">
-        <div id="company-logo">AIBoB</div>
-        <div id="studio-text">Game Studio</div>
+        <div class="intro-content">
+            <div id="company-logo">AIBoB</div>
+            <div id="studio-text">Game Studio</div>
+        </div>
         <div class="headphone-container">
             <div class="headphone-icon">🎧</div>
             <div id="headphone-tip">佩戴耳机使用更佳</div>
         </div>
-        <div id="loading-progress">游戏资源正在加载，大约需要10s，请耐心等待</div>
     </div>
 
     <div class="background-overlay" id="background-overlay"></div>
 
     <div id="bgm-control">
-        <audio id="bgm" loop preload="auto">
+        <audio id="bgm" loop>
             <source src="audio/background-music.mp3" type="audio/mpeg">
         </audio>
         <button onclick="toggleBGM()" id="bgm-button">音乐 关闭</button>
@@ -115,12 +70,6 @@
         <div class="dialog-text" id="dialog-text"></div>
         <div class="options-container" id="options-container"></div>
     </div>
-    <script>
-        window.onload = () => {
-            showInitialAnimation();
-            loadResources();
-        };
-    </script>
-    <script src="script.js" async></script>
+    <script src="script.js"></script>
 </body>
 </html>
