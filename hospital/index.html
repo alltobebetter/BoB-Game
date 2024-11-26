@@ -4,52 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico">
-    <style>
-        body {
-            margin: 0;
-            background: #000;
-            color: #fff;
-            font-family: "SimSun", serif;
-        }
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.5s ease;
-        }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #333;
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
     <title>医院，还有那位病人</title>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="loading-spinner"></div>
-    </div>
-
     <div id="intro-screen">
-        <div class="intro-content">
-            <div id="company-logo">AIBoB</div>
-            <div id="studio-text">Game Studio</div>
-        </div>
+        <div id="company-logo">AIBoB</div>
+        <div id="studio-text">Game Studio</div>
         <div class="headphone-container">
             <div class="headphone-icon">🎧</div>
             <div id="headphone-tip">佩戴耳机使用更佳</div>
