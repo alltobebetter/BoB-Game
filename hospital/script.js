@@ -1,4 +1,9 @@
-// 全局变量
+const RESOURCES = {
+    css: 'styles.css',
+    audio: 'audio/background-music.mp3',
+    story: 'readme.md'
+};
+
 let currentStory = {};
 let currentBranch = 'main';
 let currentLine = 0;
@@ -8,92 +13,76 @@ let isTyping = false;
 let typewriterSpeed = 50;
 let currentTypewriterInterrupt = null;
 
-// 资源加载管理
-const resources = {
-    story: null,
-    bgm: null,
-    styles: false
-};
-
-function updateLoadingProgress() {
-    const loadedCount = Object.values(resources).filter(v => v !== null).length;
-    const totalCount = Object.keys(resources).length;
-    const progress = Math.floor((loadedCount / totalCount) * 100);
+async function preloadResources() {
+    const loadingScreen = document.getElementById('loading-screen');
     
-    const loadingElement = document.getElementById('loading-progress');
-    if (loadingElement) {
-        loadingElement.textContent = `资源加载中... ${progress}%`;
-    }
+    try {
+        // 预加载音频
+        const audioPromise = new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.addEventListener('canplaythrough', () => resolve(), { once: true });
+            audio.addEventListener('error', reject);
+            audio.src = RESOURCES.audio;
+        });
 
-    if (loadedCount === totalCount) {
-        startGame();
+        // 预加载故事内容
+        const storyPromise = fetch(RESOURCES.story).then(res => res.text());
+
+        // 等待所有资源加载完成
+        await Promise.all([audioPromise, storyPromise]);
+
+        // 隐藏加载屏幕
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            showIntro();
+        }, 500);
+
+    } catch (error) {
+        console.error('资源加载失败:', error);
+        loadingScreen.innerHTML = `
+            <div style="text-align: center;">
+                <p>资源加载失败，请刷新重试</p>
+                <button onclick="location.reload()" style="padding: 10px 20px;">重试</button>
+            </div>
+        `;
     }
 }
 
-async function loadResources() {
-    // 加载故事内容
-    fetch('readme.md')
-        .then(response => response.text())
-        .then(text => {
-            resources.story = parseStory(text);
-            currentStory = resources.story;
-            updateLoadingProgress();
-        })
-        .catch(error => console.error('Error loading story:', error));
-
-    // 预加载背景音乐
-    const bgm = document.getElementById('bgm');
-    bgm.addEventListener('canplaythrough', () => {
-        resources.bgm = true;
-        updateLoadingProgress();
-    });
-
-    // 检查样式表加载
-    const styleSheet = document.querySelector('link[rel="stylesheet"]');
-    styleSheet.addEventListener('load', () => {
-        resources.styles = true;
-        updateLoadingProgress();
-    });
-}
-
-function showInitialAnimation() {
+function showIntro() {
     const companyLogo = document.getElementById('company-logo');
     const studioText = document.getElementById('studio-text');
     const headphoneContainer = document.querySelector('.headphone-container');
-
-    setTimeout(() => companyLogo.classList.add('show'), 500);
-    setTimeout(() => studioText.classList.add('show'), 1500);
-    setTimeout(() => {
-        companyLogo.style.opacity = '0';
-        studioText.style.opacity = '0';
-    }, 3000);
-    setTimeout(() => headphoneContainer.classList.add('show'), 3500);
-}
-
-function startGame() {
     const introScreen = document.getElementById('intro-screen');
-    const loadingProgress = document.getElementById('loading-progress');
-    
-    // 隐藏加载进度
-    loadingProgress.style.display = 'none';
-    
-    // 淡出介绍屏幕
+
+    // 显示公司名称
     setTimeout(() => {
-        introScreen.style.opacity = '0';
-        setTimeout(() => {
-            introScreen.style.display = 'none';
-            tryPlayAudio();
-            const savedProgress = localStorage.getItem('gameProgress');
-            if (savedProgress) {
-                const progress = JSON.parse(savedProgress);
-                showContinuePrompt(progress.branch, progress.line);
-            } else {
-                currentBranch = 'main';
-                currentLine = 0;
-                showCurrentLine();
-            }
-        }, 1000);
-    }, 5000);
+        companyLogo.classList.add('show');
+    }, 500);
+
+    // 显示 Studio 文字
+    setTimeout(() => {
+        studioText.classList.add('show');
+    }, 1500);
+
+    // 显示耳机提示
+    setTimeout(() => {
+        headphoneContainer.classList.add('show');
+    }, 2500);
+
+    // 开始游戏
+    setTimeout(() => {
+        tryPlayAudio();
+        const savedProgress = localStorage.getItem('gameProgress');
+        if (savedProgress) {
+            const progress = JSON.parse(savedProgress);
+            showContinuePrompt(progress.branch, progress.line);
+        } else {
+            currentBranch = 'main';
+            currentLine = 0;
+            showCurrentLine();
+        }
+    }, 4000);
 }
 
 async function tryPlayAudio() {
@@ -317,7 +306,6 @@ function displayLine(line) {
     });
 }
 
-// 事件监听器
 document.addEventListener('click', (e) => {
     if (e.target.closest('#bgm-control')) return;
     if (e.target.closest('.option-button')) return;
@@ -371,3 +359,18 @@ function toggleBGM() {
         updateBGMButton(false);
     }
 }
+
+async function loadStory() {
+    try {
+        const response = await fetch('readme.md');
+        const text = await response.text();
+        currentStory = parseStory(text);
+    } catch (error) {
+        console.error('Error loading story:', error);
+    }
+}
+
+window.onload = () => {
+    preloadResources();
+    loadStory();
+};
