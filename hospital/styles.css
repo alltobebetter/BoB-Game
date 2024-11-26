@@ -123,3 +123,68 @@
     background-color: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.8);
 }
+
+body {
+    font-family: "SimSun", serif;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    padding: 2rem;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.character-name {
+    font-size: 1.44rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    width: 100%;
+}
+
+.dialog-text {
+    font-size: 1.12rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 0 20px;
+    min-height: 3em;
+    width: 100%;
+    max-width: 600px;
+}
+
+.options-container {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
+    flex-wrap: wrap;
+    pointer-events: none;
+    width: 100%;
+}
