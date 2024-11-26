@@ -1,3 +1,97 @@
+// 资源加载管理
+class ResourceLoader {
+    constructor() {
+        this.resources = [
+            { type: 'audio', url: 'audio/background-music.mp3', weight: 30 },
+            { type: 'story', url: 'readme.md', weight: 20 },
+            { type: 'image', url: 'favicon.ico', weight: 10 }
+            // 可以继续添加其他需要预加载的资源
+        ];
+        this.loadedWeight = 0;
+        this.totalWeight = this.resources.reduce((sum, res) => sum + res.weight, 0);
+        this.loadedResources = new Map();
+    }
+
+    async loadResource(resource) {
+        try {
+            let result;
+            switch (resource.type) {
+                case 'audio':
+                    result = await this.loadAudio(resource.url);
+                    break;
+                case 'story':
+                    result = await this.loadStory(resource.url);
+                    break;
+                case 'image':
+                    result = await this.loadImage(resource.url);
+                    break;
+            }
+            this.loadedResources.set(resource.url, result);
+            this.loadedWeight += resource.weight;
+            this.updateProgress();
+            return result;
+        } catch (error) {
+            console.error(`Failed to load ${resource.url}:`, error);
+            this.loadedWeight += resource.weight;
+            this.updateProgress();
+        }
+    }
+
+    updateProgress() {
+        const progress = (this.loadedWeight / this.totalWeight) * 100;
+        const progressBar = document.getElementById('progress-bar');
+        const loadingText = document.getElementById('loading-text');
+        
+        progressBar.style.width = `${progress}%`;
+        loadingText.textContent = `正在加载游戏资源... ${Math.round(progress)}%`;
+    }
+
+    async loadAudio(url) {
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.oncanplaythrough = () => resolve(audio);
+            audio.onerror = reject;
+            audio.src = url;
+        });
+    }
+
+    async loadStory(url) {
+        const response = await fetch(url);
+        return await response.text();
+    }
+
+    async loadImage(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+    async loadAll() {
+        const loadPromises = this.resources.map(resource => 
+            this.loadResource(resource)
+        );
+        
+        await Promise.allSettled(loadPromises);
+        
+        const loadingScreen = document.getElementById('loading-screen');
+        const introScreen = document.getElementById('intro-screen');
+        
+        loadingScreen.style.opacity = '0';
+        loadingScreen.style.transition = 'opacity 0.5s ease';
+        
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            introScreen.style.display = '';
+            showIntro();
+        }, 500);
+
+        return this.loadedResources;
+    }
+}
+
 let currentStory = {};
 let currentBranch = 'main';
 let currentLine = 0;
@@ -6,123 +100,30 @@ let isAnimating = false;
 let isTyping = false;
 let typewriterSpeed = 50;
 let currentTypewriterInterrupt = null;
-let totalResources = 0;
-let loadedResources = 0;
-
-async function preloadResources() {
-    const resources = [
-        { type: 'audio', url: 'audio/background-music.mp3' },
-        { type: 'text', url: 'readme.md' },
-        { type: 'image', url: 'favicon.ico' }
-        // 添加其他需要预加载的资源
-    ];
-
-    totalResources = resources.length;
-
-    const loadPromises = resources.map(resource => {
-        return new Promise((resolve, reject) => {
-            switch(resource.type) {
-                case 'audio':
-                    const audio = new Audio();
-                    audio.oncanplaythrough = () => {
-                        loadedResources++;
-                        updateLoadingProgress();
-                        resolve();
-                    };
-                    audio.onerror = reject;
-                    audio.src = resource.url;
-                    break;
-                    
-                case 'image':
-                    const img = new Image();
-                    img.onload = () => {
-                        loadedResources++;
-                        updateLoadingProgress();
-                        resolve();
-                    };
-                    img.onerror = reject;
-                    img.src = resource.url;
-                    break;
-                    
-                case 'text':
-                    fetch(resource.url)
-                        .then(response => response.text())
-                        .then(() => {
-                            loadedResources++;
-                            updateLoadingProgress();
-                            resolve();
-                        })
-                        .catch(reject);
-                    break;
-            }
-        });
-    });
-
-    try {
-        await Promise.all(loadPromises);
-        finishLoading();
-    } catch (error) {
-        console.error('Resource loading error:', error);
-        // 即使加载失败也继续游戏
-        finishLoading();
-    }
-}
-
-function updateLoadingProgress() {
-    const progress = (loadedResources / totalResources) * 100;
-    const loadingBar = document.getElementById('loading-bar');
-    loadingBar.style.width = `${progress}%`;
-}
-
-function finishLoading() {
-    const loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.style.opacity = '0';
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        showIntro();
-    }, 500);
-}
-
-async function loadStory() {
-    try {
-        const response = await fetch('readme.md');
-        const text = await response.text();
-        console.log("加载的原始文本:", text);
-        currentStory = parseStory(text);
-        console.log("解析后的故事数据:", currentStory);
-    } catch (error) {
-        console.error('Error loading story:', error);
-    }
-}
-
+let resourceLoader;
 function showIntro() {
     const companyLogo = document.getElementById('company-logo');
     const studioText = document.getElementById('studio-text');
     const headphoneContainer = document.querySelector('.headphone-container');
     const introScreen = document.getElementById('intro-screen');
 
-    // 显示公司名称
     setTimeout(() => {
         companyLogo.classList.add('show');
     }, 500);
 
-    // 显示 Studio 文字
     setTimeout(() => {
         studioText.classList.add('show');
     }, 1500);
 
-    // 淡出公司名称和 Studio
     setTimeout(() => {
         companyLogo.style.opacity = '0';
         studioText.style.opacity = '0';
     }, 3000);
 
-    // 显示耳机提示
     setTimeout(() => {
         headphoneContainer.classList.add('show');
     }, 3500);
 
-    // 开始游戏
     setTimeout(() => {
         introScreen.style.opacity = '0';
         setTimeout(() => {
@@ -416,7 +417,15 @@ function toggleBGM() {
     }
 }
 
-window.onload = () => {
-    preloadResources();
-    loadStory();
+window.onload = async () => {
+    resourceLoader = new ResourceLoader();
+    const resources = await resourceLoader.loadAll();
+    
+    if (resources.has('audio/background-music.mp3')) {
+        bgm.src = 'audio/background-music.mp3';
+    }
+    
+    if (resources.has('readme.md')) {
+        currentStory = parseStory(resources.get('readme.md'));
+    }
 };
