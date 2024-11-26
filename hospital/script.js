@@ -1,97 +1,4 @@
-// 资源加载管理
-class ResourceLoader {
-    constructor() {
-        this.resources = [
-            { type: 'audio', url: 'audio/background-music.mp3', weight: 30 },
-            { type: 'story', url: 'readme.md', weight: 20 },
-            { type: 'image', url: 'favicon.ico', weight: 10 }
-            // 可以继续添加其他需要预加载的资源
-        ];
-        this.loadedWeight = 0;
-        this.totalWeight = this.resources.reduce((sum, res) => sum + res.weight, 0);
-        this.loadedResources = new Map();
-    }
-
-    async loadResource(resource) {
-        try {
-            let result;
-            switch (resource.type) {
-                case 'audio':
-                    result = await this.loadAudio(resource.url);
-                    break;
-                case 'story':
-                    result = await this.loadStory(resource.url);
-                    break;
-                case 'image':
-                    result = await this.loadImage(resource.url);
-                    break;
-            }
-            this.loadedResources.set(resource.url, result);
-            this.loadedWeight += resource.weight;
-            this.updateProgress();
-            return result;
-        } catch (error) {
-            console.error(`Failed to load ${resource.url}:`, error);
-            this.loadedWeight += resource.weight;
-            this.updateProgress();
-        }
-    }
-
-    updateProgress() {
-        const progress = (this.loadedWeight / this.totalWeight) * 100;
-        const progressBar = document.getElementById('progress-bar');
-        const loadingText = document.getElementById('loading-text');
-        
-        progressBar.style.width = `${progress}%`;
-        loadingText.textContent = `正在加载游戏资源... ${Math.round(progress)}%`;
-    }
-
-    async loadAudio(url) {
-        return new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.oncanplaythrough = () => resolve(audio);
-            audio.onerror = reject;
-            audio.src = url;
-        });
-    }
-
-    async loadStory(url) {
-        const response = await fetch(url);
-        return await response.text();
-    }
-
-    async loadImage(url) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-            img.src = url;
-        });
-    }
-
-    async loadAll() {
-        const loadPromises = this.resources.map(resource => 
-            this.loadResource(resource)
-        );
-        
-        await Promise.allSettled(loadPromises);
-        
-        const loadingScreen = document.getElementById('loading-screen');
-        const introScreen = document.getElementById('intro-screen');
-        
-        loadingScreen.style.opacity = '0';
-        loadingScreen.style.transition = 'opacity 0.5s ease';
-        
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            introScreen.style.display = '';
-            showIntro();
-        }, 500);
-
-        return this.loadedResources;
-    }
-}
-
+// 全局变量
 let currentStory = {};
 let currentBranch = 'main';
 let currentLine = 0;
@@ -100,30 +7,77 @@ let isAnimating = false;
 let isTyping = false;
 let typewriterSpeed = 50;
 let currentTypewriterInterrupt = null;
-let resourceLoader;
-function showIntro() {
+
+// 资源加载管理
+const resources = {
+    story: null,
+    bgm: null,
+    styles: false
+};
+
+function updateLoadingProgress() {
+    const loadedCount = Object.values(resources).filter(v => v !== null).length;
+    const totalCount = Object.keys(resources).length;
+    const progress = Math.floor((loadedCount / totalCount) * 100);
+    
+    const loadingElement = document.getElementById('loading-progress');
+    if (loadingElement) {
+        loadingElement.textContent = `资源加载中... ${progress}%`;
+    }
+
+    if (loadedCount === totalCount) {
+        startGame();
+    }
+}
+
+async function loadResources() {
+    // 加载故事内容
+    fetch('readme.md')
+        .then(response => response.text())
+        .then(text => {
+            resources.story = parseStory(text);
+            currentStory = resources.story;
+            updateLoadingProgress();
+        })
+        .catch(error => console.error('Error loading story:', error));
+
+    // 预加载背景音乐
+    const bgm = document.getElementById('bgm');
+    bgm.addEventListener('canplaythrough', () => {
+        resources.bgm = true;
+        updateLoadingProgress();
+    });
+
+    // 检查样式表加载
+    const styleSheet = document.querySelector('link[rel="stylesheet"]');
+    styleSheet.addEventListener('load', () => {
+        resources.styles = true;
+        updateLoadingProgress();
+    });
+}
+
+function showInitialAnimation() {
     const companyLogo = document.getElementById('company-logo');
     const studioText = document.getElementById('studio-text');
     const headphoneContainer = document.querySelector('.headphone-container');
-    const introScreen = document.getElementById('intro-screen');
 
-    setTimeout(() => {
-        companyLogo.classList.add('show');
-    }, 500);
-
-    setTimeout(() => {
-        studioText.classList.add('show');
-    }, 1500);
-
+    setTimeout(() => companyLogo.classList.add('show'), 500);
+    setTimeout(() => studioText.classList.add('show'), 1500);
     setTimeout(() => {
         companyLogo.style.opacity = '0';
         studioText.style.opacity = '0';
     }, 3000);
+    setTimeout(() => headphoneContainer.classList.add('show'), 3500);
+}
 
-    setTimeout(() => {
-        headphoneContainer.classList.add('show');
-    }, 3500);
-
+function startGame() {
+    const introScreen = document.getElementById('intro-screen');
+    const loadingProgress = document.getElementById('loading-progress');
+    
+    // 隐藏加载进度
+    loadingProgress.style.display = 'none';
+    
+    // 淡出介绍屏幕
     setTimeout(() => {
         introScreen.style.opacity = '0';
         setTimeout(() => {
@@ -363,6 +317,7 @@ function displayLine(line) {
     });
 }
 
+// 事件监听器
 document.addEventListener('click', (e) => {
     if (e.target.closest('#bgm-control')) return;
     if (e.target.closest('.option-button')) return;
@@ -416,16 +371,3 @@ function toggleBGM() {
         updateBGMButton(false);
     }
 }
-
-window.onload = async () => {
-    resourceLoader = new ResourceLoader();
-    const resources = await resourceLoader.loadAll();
-    
-    if (resources.has('audio/background-music.mp3')) {
-        bgm.src = 'audio/background-music.mp3';
-    }
-    
-    if (resources.has('readme.md')) {
-        currentStory = parseStory(resources.get('readme.md'));
-    }
-};
